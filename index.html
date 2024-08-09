@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TODO List Project </title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+
+        #main-heading {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .todolist {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            column-gap: 10px;
+            row-gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        #todo-input,
+        #todo-date {
+            font-size: 15px;
+            padding: 10px 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .btn-delete {
+            background-color: darkred;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .btn-delete:hover {
+            background-color: red;
+        }
+
+        .btn-todo {
+            background-color: green;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .btn-todo:hover {
+            background-color: lightgreen;
+        }
+
+        .todo-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            column-gap: 10px;
+            row-gap: 10px;
+        }
+
+        .todo-item {
+            display: contents;
+        }
+    </style>
+</head>
+<body>
+
+    <h1 id="main-heading">Todo List</h1>
+    <div class="todolist">
+        <div class="grid-container">
+            <input type="text" id="todo-input" placeholder="Enter TODO here">
+            <input type="date" id="todo-date">
+            <button class="btn-todo" onclick="addTodo();">Add</button>
+        </div>
+        <div class="todo-container"></div>
+    </div>
+    <script>
+        let todoList = JSON.parse(localStorage.getItem('todoList')) || [];
+
+        function addTodo() {
+            let inputElement = document.querySelector('#todo-input');
+            let dateElement = document.querySelector('#todo-date');
+            let todoItem = inputElement.value;
+            let todoDate = dateElement.value;
+            if (todoItem && todoDate) {
+                todoList.push({ item: todoItem, dueDate: todoDate });
+                inputElement.value = '';
+                dateElement.value = '';
+                localStorage.setItem('todoList',JSON.stringify(todoList));
+                displayItems();
+            }
+        }
+
+        function displayItems() {
+            let containerElement = document.querySelector('.todo-container');
+            let newHtml = '';
+            for (let i = 0; i < todoList.length; i++) {
+                let { item, dueDate } = todoList[i];
+                newHtml += `
+                    <div class="todo-item">
+                        <span>${item}</span>
+                        <span>${dueDate}</span>
+                        <button class="btn-delete" onclick="deleteTodoItem(${i});">Delete</button>
+                    </div>
+                `;
+            }
+            containerElement.innerHTML = newHtml;
+        }
+
+        function deleteTodoItem(index) {
+            todoList.splice(index, 1);
+             localStorage.setItem('todoList', JSON.stringify(todoList));
+            displayItems();
+        }
+        displayItems();
+    </script>
+</body>
+</html>
