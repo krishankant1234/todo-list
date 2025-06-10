@@ -1,137 +1,435 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>TODO List Project </title>
+    <title>My Responsive Task List</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        /* General Body Styling */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%); /* Gradient background */
+            color: #333;
+            padding: 20px;
+            box-sizing: border-box; /* Ensures padding is included in element's total width/height */
+        }
+
+        /* Main Heading */
+        #main-heading {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #fff;
+            font-size: 3em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            /* Responsive font size */
+            font-size: clamp(2em, 8vw, 3.5em); /* Min 2em, max 3.5em, scales with viewport width */
+        }
+
+        /* Container Wrapper for main boxes */
+        .container-wrapper {
+            display: flex;
+            flex-wrap: wrap; /* Allows containers to wrap on smaller screens */
+            gap: 20px; /* Space between the two containers */
+            justify-content: center; /* Centers containers when they wrap */
+            width: 90%;
+            max-width: 1200px; /* Max width for the whole wrapper */
+        }
+
+        /* Common styles for main content boxes */
+        .todolist, .suggestion-box {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            flex: 1; /* Allows boxes to grow and shrink */
+            min-width: 300px; /* Minimum width for each box before wrapping */
+            box-sizing: border-box;
+        }
+
+        /* Heading for suggestion box */
+        .suggestion-box h2 {
+            text-align: center;
+            color: #6a11cb;
+            margin-bottom: 20px;
+            font-size: clamp(1.5em, 5vw, 2em); /* Responsive font size */
+        }
+
+        /* Input and Add button grid layout */
+        .input-section-grid {
+            display: grid;
+            /* Default: 3 columns for larger screens */
+            grid-template-columns: 1fr 200px auto; /* Task input, Date input, Add button */
+            column-gap: 15px;
+            row-gap: 15px;
+            margin-bottom: 25px;
+            align-items: center;
+        }
+
+        /* Styles for input fields */
+        .input-field {
+            font-size: 1.1em;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+            width: 100%; /* Ensure inputs take full width of their grid cell */
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #6a11cb;
+        }
+
+        /* Common button styles */
+        .btn {
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 18px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            width: 100%; /* Ensure buttons take full width of their grid cell */
+        }
+
+        /* Specific Add button style */
+        .btn-add {
+            background-color: #28a745; /* Green */
+            font-size: 1.1em;
+        }
+
+        .btn-add:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        /* Specific Delete button style */
+        .btn-delete {
+            background-color: #dc3545; /* Red */
+        }
+
+        .btn-delete:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+        }
+
+        /* To-do items display grid */
+        .task-list-grid {
+            display: grid;
+            /* Default: 3 columns for larger screens, matches input grid for alignment */
+            grid-template-columns: 1fr 200px auto;
+            column-gap: 15px;
+            row-gap: 15px;
+            margin-top: 20px;
+        }
+
+        /* Individual task item styling */
+        .task-item-row {
+            display: contents; /* Allows children to participate in the grid layout */
+        }
+
+        .task-item-row span {
+            background-color: #f8f9fa;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-size: 1.05em;
+            word-wrap: break-word;
+            display: flex; /* Use flex for vertical centering if text wraps */
+            align-items: center; /* Center text vertically */
+        }
+
+        /* Message when no tasks */
+        .empty-list-message {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 8px;
+            grid-column: 1 / -1; /* Span across all columns in the grid */
+        }
+
+        /* Suggested tasks grid layout */
+        .suggestion-list {
+            display: grid;
+            /* Responsive grid for suggestions, adapts column count based on available space */
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 15px;
+        }
+
+        /* Individual suggestion card styling */
+        .suggestion-card {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f4f4f4;
+            min-height: 100px; /* Minimum height for cards */
         }
 
-        #main-heading {
-            text-align: center;
-            margin-bottom: 20px;
+        .suggestion-card:hover {
+            background-color: #dee2e6;
+            transform: translateY(-3px);
         }
 
-        .todolist {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
+        .suggestion-card i {
+            font-size: 2em;
+            margin-bottom: 10px;
+            color: #2575fc;
         }
 
-        .grid-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr auto;
-            column-gap: 10px;
-            row-gap: 10px;
-            margin-bottom: 20px;
-            align-items: center;
+        .suggestion-card span {
+            font-weight: bold;
+            color: #495057;
+            text-wrap: balance; /* Tries to prevent awkward line breaks */
         }
 
-        #todo-input,
-        #todo-date {
-            font-size: 15px;
-            padding: 10px 5px;
-            width: 100%;
-            box-sizing: border-box;
+        /* --- Responsive Adjustments (Media Queries) --- */
+
+        /* For screens smaller than 768px (e.g., tablets in portrait, large phones) */
+        @media (max-width: 768px) {
+            .container-wrapper {
+                flex-direction: column; /* Stack the main boxes vertically */
+                align-items: center; /* Center them when stacked */
+                width: 95%; /* Take more width on smaller screens */
+            }
+
+            .todolist, .suggestion-box {
+                width: 100%; /* Make each box take full available width */
+                max-width: 550px; /* Limit their max width even when stacked */
+                margin-bottom: 20px; /* Add space between stacked boxes */
+            }
+
+            /* Stack input fields and button for better usability on smaller screens */
+            .input-section-grid,
+            .task-list-grid {
+                grid-template-columns: 1fr; /* Single column layout */
+                row-gap: 10px; /* Reduce row gap */
+            }
+
+            .input-field,
+            .btn {
+                width: 100%; /* Ensure all inputs and buttons take full width */
+            }
+
+            .task-item-row span {
+                /* Adjust padding or font size for task items if needed on smaller screens */
+                font-size: 1em;
+                padding: 10px;
+            }
+
+            /* Adjust suggested tasks grid for smaller screens */
+            .suggestion-list {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); /* Smaller cards */
+                gap: 10px;
+            }
+
+            .suggestion-card {
+                min-height: 80px; /* Smaller min height for cards */
+                padding: 10px;
+            }
+
+            .suggestion-card i {
+                font-size: 1.5em; /* Smaller icon size */
+                margin-bottom: 5px;
+            }
+            .suggestion-card span {
+                font-size: 0.9em; /* Smaller font size for text */
+            }
         }
 
-        .btn-delete {
-            background-color: darkred;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 10px;
-            cursor: pointer;
-        }
-
-        .btn-delete:hover {
-            background-color: red;
-        }
-
-        .btn-todo {
-            background-color: green;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 10px;
-            cursor: pointer;
-        }
-
-        .btn-todo:hover {
-            background-color: lightgreen;
-        }
-
-        .todo-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr auto;
-            column-gap: 10px;
-            row-gap: 10px;
-        }
-
-        .todo-item {
-            display: contents;
+        /* For very small screens (e.g., mobile phones in portrait) */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px; /* Reduce overall body padding */
+            }
+            #main-heading {
+                font-size: clamp(1.8em, 10vw, 2.5em); /* Further reduce heading size */
+            }
+            .todolist, .suggestion-box {
+                padding: 20px; /* Reduce padding inside boxes */
+            }
+            .input-field, .btn {
+                font-size: 0.95em; /* Slightly smaller font for inputs/buttons */
+                padding: 10px 12px;
+            }
+            .task-item-row span {
+                font-size: 0.95em;
+            }
         }
     </style>
 </head>
 <body>
 
-    <h1 id="main-heading">Todo List</h1>
-    <div class="todolist">
-        <div class="grid-container">
-            <input type="text" id="todo-input" placeholder="Enter TODO here">
-            <input type="date" id="todo-date">
-            <button class="btn-todo" onclick="addTodo();">Add</button>
+    <h1 id="main-heading">My Daily Tasks</h1>
+    <div class="container-wrapper">
+        <div class="todolist">
+            <div class="input-section-grid">
+                <input type="text" id="todo-input" class="input-field" placeholder="What needs to be done?">
+                <input type="date" id="todo-date" class="input-field">
+                <button class="btn btn-add" onclick="App.addTodo();">Add Task</button>
+            </div>
+            <div class="task-list-grid"></div>
         </div>
-        <div class="todo-container"></div>
+
+        <div class="suggestion-box">
+            <h2>Suggested Tasks</h2>
+            <div class="suggestion-list"></div>
+        </div>
     </div>
+
     <script>
-        let todoList = JSON.parse(localStorage.getItem('todoList')) || [];
+        // IIFE for better encapsulation
+        const App = (function() {
+            let todoList = JSON.parse(localStorage.getItem('todoList')) || [];
 
-        function addTodo() {
-            let inputElement = document.querySelector('#todo-input');
-            let dateElement = document.querySelector('#todo-date');
-            let todoItem = inputElement.value;
-            let todoDate = dateElement.value;
-            if (todoItem && todoDate) {
+            // Sample suggested tasks with Font Awesome icons
+            const suggestedTasks = [
+                { task: "Buy Groceries", icon: "fas fa-shopping-cart" },
+                { task: "Morning Workout", icon: "fas fa-dumbbell" },
+                { task: "Read a Book", icon: "fas fa-book-open" },
+                { task: "Pay Utility Bills", icon: "fas fa-receipt" },
+                { task: "Clean Home", icon: "fas fa-broom" },
+                { task: "Call a Friend", icon: "fas fa-phone-alt" },
+                { task: "Write Project Report", icon: "fas fa-file-alt" },
+                { task: "Meditate for 15 min", icon: "fas fa-brain" },
+                { task: "Plan Weekend Trip", icon: "fas fa-plane" },
+                { task: "Check Emails", icon: "fas fa-envelope" }
+            ];
+
+            // DOM Element References (cached for efficiency)
+            const elements = {
+                todoInput: document.getElementById('todo-input'),
+                todoDate: document.getElementById('todo-date'),
+                taskListGrid: document.querySelector('.task-list-grid'),
+                suggestionList: document.querySelector('.suggestion-list')
+            };
+
+            /**
+             * Adds a new To-Do item to the list.
+             */
+            function addTodo() {
+                const todoItem = elements.todoInput.value.trim();
+                const todoDate = elements.todoDate.value;
+
+                if (!todoItem) {
+                    alert('Please enter a task description.');
+                    return;
+                }
+                if (!todoDate) {
+                    alert('Please select a due date for the task.');
+                    return;
+                }
+
                 todoList.push({ item: todoItem, dueDate: todoDate });
-                inputElement.value = '';
-                dateElement.value = '';
-                localStorage.setItem('todoList',JSON.stringify(todoList));
-                displayItems();
+                saveAndDisplayTasks();
+                clearInputFields();
             }
-        }
 
-        function displayItems() {
-            let containerElement = document.querySelector('.todo-container');
-            let newHtml = '';
-            for (let i = 0; i < todoList.length; i++) {
-                let { item, dueDate } = todoList[i];
-                newHtml += `
-                    <div class="todo-item">
-                        <span>${item}</span>
-                        <span>${dueDate}</span>
-                        <button class="btn-delete" onclick="deleteTodoItem(${i});">Delete</button>
-                    </div>
-                `;
+            /**
+             * Clears the input fields after adding a task.
+             */
+            function clearInputFields() {
+                elements.todoInput.value = '';
+                elements.todoDate.value = '';
             }
-            containerElement.innerHTML = newHtml;
-        }
 
-        function deleteTodoItem(index) {
-            todoList.splice(index, 1);
-             localStorage.setItem('todoList', JSON.stringify(todoList));
-            displayItems();
-        }
-        displayItems();
+            /**
+             * Displays all To-Do items in the list.
+             */
+            function displayTasks() {
+                let newHtml = '';
+                if (todoList.length === 0) {
+                    newHtml = `<div class="empty-list-message">Your to-do list is empty! Add some tasks or pick from suggestions.</div>`;
+                } else {
+                    for (let i = 0; i < todoList.length; i++) {
+                        const { item, dueDate } = todoList[i];
+                        newHtml += `
+                            <div class="task-item-row">
+                                <span>${item}</span>
+                                <span>${dueDate}</span>
+                                <button class="btn btn-delete" onclick="App.deleteTodo(${i});">Delete</button>
+                            </div>
+                        `;
+                    }
+                }
+                elements.taskListGrid.innerHTML = newHtml;
+            }
+
+            /**
+             * Deletes a To-Do item based on its index.
+             * @param {number} index - The index of the item to delete.
+             */
+            function deleteTodo(index) {
+                todoList.splice(index, 1);
+                saveAndDisplayTasks();
+            }
+
+            /**
+             * Saves the current todoList to localStorage and re-displays it.
+             */
+            function saveAndDisplayTasks() {
+                localStorage.setItem('todoList', JSON.stringify(todoList));
+                displayTasks();
+            }
+
+            /**
+             * Displays the suggested tasks in their dedicated box.
+             */
+            function displaySuggestedTasks() {
+                let suggestionsHtml = '';
+                suggestedTasks.forEach(suggestion => {
+                    suggestionsHtml += `
+                        <div class="suggestion-card" onclick="App.selectSuggestedTask('${suggestion.task}');">
+                            <i class="${suggestion.icon}"></i>
+                            <span>${suggestion.task}</span>
+                        </div>
+                    `;
+                });
+                elements.suggestionList.innerHTML = suggestionsHtml;
+            }
+
+            /**
+             * Populates the To-Do input field with a selected suggested task.
+             * @param {string} task - The task name from the suggestion.
+             */
+            function selectSuggestedTask(task) {
+                elements.todoInput.value = task;
+                // Optional: Pre-fill date with today's date if desired
+                // elements.todoDate.valueAsDate = new Date();
+            }
+
+            /**
+             * Initializes the application by displaying tasks and suggestions.
+             */
+            function init() {
+                displayTasks();
+                displaySuggestedTasks();
+            }
+
+            // Public interface for the App module
+            return {
+                addTodo: addTodo,
+                deleteTodo: deleteTodo,
+                selectSuggestedTask: selectSuggestedTask,
+                init: init // Expose init to call it on page load
+            };
+        })();
+
+        // Initialize the application when the DOM is ready
+        document.addEventListener('DOMContentLoaded', App.init);
     </script>
 </body>
 </html>
